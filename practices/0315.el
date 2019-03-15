@@ -28,3 +28,6 @@ foo
   (message "%s turn to %s" 'bar bar)
   99
   )
+
+(defun new-func () 3)
+(new-func)
