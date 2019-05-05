@@ -21,7 +21,7 @@
 (defun search-key (tree key)
   (cond
    ((equal "nil" (caar tree)) (print "not found") nil) ; Return nil if not found
-   ((= key (caar tree))(car tree))
+   ((= key (caar tree)) tree)
    ((< key (caar tree))(search-key (cadr tree) key))
    ((> key (caar tree))(search-key (cddr tree) key))
    ))
@@ -30,7 +30,7 @@
   (let ((ret (search-key tree key)))
     (if (null ret)
       ()
-    (cdr ret))
+    (cdar ret))
   ))
 
 (defun str-length-of-val (tree key)
@@ -60,6 +60,13 @@
     (print-btree-helper (cadr tree) (+ indent (length-of-root tree)) "↘")
     ))
 
+(defun num-of-child (node)
+  (cond
+    ((and (equal (create-node) (cadr node)) (equal (create-node) (cddr node))) 0)
+    ((and (not (equal (create-node) (cadr node))) (not (equal (create-node) (cddr node)))) 2)
+    (t 1)
+    ))
+
 (defun print-btree (tree)
   (print-btree-helper tree 0 "→") t)
 
@@ -69,7 +76,9 @@
 (let ((R (init)))
   (dotimes (i 10)
     (insert R (random 10) "OuO"))
+  (insert R 3 "OuO")
   (print-btree R)
-  (print (search-key R 3))
-  (print (get-val R 3))
+  (print  (search-key R 3))
+  (print (cadr (search-key R 3)))
+  (print (num-of-child (search-key R 3)))
   )
