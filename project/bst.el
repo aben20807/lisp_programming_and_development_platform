@@ -18,13 +18,20 @@
       (insert (cddr tree) key val))
    ))
 
-(defun get-val (tree key)
+(defun search-key (tree key)
   (cond
-   ((equal "nil" (caar tree)) (print "not found"))
-   ((= key (caar tree))(cdar tree))
-   ((< key (caar tree))(get-val (cadr tree) key))
-   ((> key (caar tree))(get-val (cddr tree) key))
+   ((equal "nil" (caar tree)) (print "not found") nil) ; Return nil if not found
+   ((= key (caar tree))(car tree))
+   ((< key (caar tree))(search-key (cadr tree) key))
+   ((> key (caar tree))(search-key (cddr tree) key))
    ))
+
+(defun get-val (tree key)
+  (let ((ret (search-key tree key)))
+    (if (null ret)
+      ()
+    (cdr ret))
+  ))
 
 (defun str-length-of-val (tree key)
   "Return the length of all strings in val."
@@ -63,4 +70,6 @@
   (dotimes (i 10)
     (insert R (random 10) "OuO"))
   (print-btree R)
+  (print (search-key R 3))
+  (print (get-val R 3))
   )
