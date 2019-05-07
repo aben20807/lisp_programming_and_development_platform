@@ -19,6 +19,11 @@
       (progn
         (setcar target (cons key (cons val nil)))           ; Init a val into a list
         (setcdr target (cons (create-node) (create-node)))  ; Create left and right node
+        ;        [car|cdr]
+        ; [caar|cdar] [cadr|cddr]
+        ; (key) (val)   |    |
+        ;               v    v
+        ;            [node][node]
         )
       (setcdr (car target) (cons val (cdar target))) ; Add (preppand) value into a list
       )
@@ -59,6 +64,7 @@
     ))
 
 (defun num-of-child (node)
+  "Return the number of child of node by checking if the child node is same as empty node."
   (cond
     ((and (equal (create-node) (cadr node)) (equal (create-node) (cddr node))) 0)
     ((and (not (equal (create-node) (cadr node))) (not (equal (create-node) (cddr node)))) 2)
