@@ -7,19 +7,19 @@
 
 (defun search-key (tree key)
   (cond
-   ((equal "nil" (caar tree)) tree) ; Return current root if not found
-   ((= key (caar tree)) tree)
-   ((< key (caar tree))(search-key (cadr tree) key))
-   ((> key (caar tree))(search-key (cddr tree) key))
-   ))
+    ((equal "nil" (caar tree)) tree) ; Return current root if not found
+    ((= key (caar tree)) tree)
+    ((< key (caar tree))(search-key (cadr tree) key))
+    ((> key (caar tree))(search-key (cddr tree) key))
+    ))
 
 (defun insert (tree key val)
   (let ((target (search-key tree key)))
     (if (equal "nil" (caar target)) ; If target have not initialized the key
-               (progn
-                    (setcar target (cons key (cons val nil)))           ; Init a val into a list
-                    (setcdr target (cons (create-node) (create-node)))  ; Create left and right node
-                 )
+      (progn
+        (setcar target (cons key (cons val nil)))           ; Init a val into a list
+        (setcdr target (cons (create-node) (create-node)))  ; Create left and right node
+        )
       (setcdr (car target) (cons val (cdar target))) ; Add (preppand) value into a list
       )
     ))
@@ -28,8 +28,8 @@
   (let ((ret (search-key tree key)))
     (if (equal "nil" (caar ret))
       (prog1 nil (print "not found!")) ; Return nil when key is not found
-    (cdar ret))
-  ))
+      (cdar ret))
+    ))
 
 (defun str-length-of-val (tree key)
   "Return the length of all strings in val."
@@ -46,7 +46,7 @@
 
 (defun print-btree-helper (tree indent prefix)
   (if (or (equal "nil" tree) (equal "nil" (caar tree)))
-      ()
+    ()
     (print-btree-helper (cddr tree) (+ indent (length-of-root tree)) "↗")
     (princ (make-string indent ?\ )) ; Create the indent spaces
     (princ prefix)
