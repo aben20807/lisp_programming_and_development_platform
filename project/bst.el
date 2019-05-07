@@ -5,19 +5,6 @@
   "A node contains three cons to store 4 value: ((key . value) left . right)"
   (cons (cons "nil" "nil") (cons "nil" "nil")))
 
-(defun insert (tree key val)
-  (cond
-   ((equal "nil" (caar tree))
-    (setcar tree (cons key (cons val nil)))           ; Init a val into a list
-    (setcdr tree (cons (create-node) (create-node)))) ; Create left and right node
-   ((= key (caar tree))
-    (setcdr (car tree) (cons val (cdar tree))))       ; Add (preppand) value into a list
-   ((< key (caar tree))
-      (insert (cadr tree) key val))
-   ((> key (caar tree))
-      (insert (cddr tree) key val))
-   ))
-
 (defun search-key (tree key)
   (cond
    ((equal "nil" (caar tree)) tree) ; Return current root if not found
@@ -25,6 +12,17 @@
    ((< key (caar tree))(search-key (cadr tree) key))
    ((> key (caar tree))(search-key (cddr tree) key))
    ))
+
+(defun insert (tree key val)
+  (let ((target (search-key tree key)))
+    (if (equal "nil" (caar target)) ; If target have not initialized the key
+               (progn
+                    (setcar target (cons key (cons val nil)))           ; Init a val into a list
+                    (setcdr target (cons (create-node) (create-node)))  ; Create left and right node
+                 )
+      (setcdr (car target) (cons val (cdar target))) ; Add (preppand) value into a list
+      )
+    ))
 
 (defun get-val (tree key)
   (let ((ret (search-key tree key)))
