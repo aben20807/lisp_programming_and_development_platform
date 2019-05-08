@@ -84,23 +84,23 @@
     (cond
       ((equal "nil" (caar target))
         (prog1 nil (print "not found! cannot delete"))) ; Return nil when key is not found
-      ((= 0 (num-of-child target))
+      ((= 0 (num-of-child target)) ; Directly delete the node
        (setcar target (cons "nil" "nil"))
        (setcdr target (cons "nil" "nil")))
-      ((= 1 (num-of-child target))
+      ((= 1 (num-of-child target)) ; Let the child to replace target
        (cond
-         ((equal "nil" (caar (cadr target)))
+         ((equal "nil" (caar (cadr target))) ; Has node in the right
           (setcar target (car (cddr target)))
           (setcdr target (cdr (cddr target))))
-         ((equal "nil" (caar (cddr target)))
+         ((equal "nil" (caar (cddr target))) ; Has node in the left
           (setcar target (car (cadr target)))
           (setcdr target (cdr (cadr target))))
-         (t (print (cadr target)))
+         (t (error "never reach"))
          )
        )
       ((= 2 (num-of-child target))
-       (let ((big-kv (car (biggest-node (cadr target)))))
-         (delete-node tree (car big-kv))
+       (let ((big-kv (car (biggest-node (cadr target))))) ; Store the key and value
+         (delete-node tree (car big-kv)) ; Delete the biggest node smaller than target
          (setcar target big-kv)
        )))
     ))
@@ -112,14 +112,6 @@
 (setq debug-on-error t)
 (setq R nil)
 (let ((R (init)))
-  ; (dotimes (i 10)
-  ;   (insert R (random 10) "OuO"))
-  ; (insert R 4 "OuO")
-  ; (insert R 4 "OuO")
-  ; (insert R 2 "OuO")
-  ; (insert R 3 "OuO")
-  ; (insert R 3 "OuO")
-  ; (insert R 5 "OuO")
   (dotimes (i 20)
     (insert R (random 10) "OuO"))
   (print-btree R)
