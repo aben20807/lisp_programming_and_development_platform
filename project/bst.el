@@ -66,6 +66,8 @@
 (defun num-of-child (node)
   "Return the number of child of node by checking if the child node is same as empty node."
   (cond
+    ((equal "nil" (caar node))
+      (prog1 nil (print "not found! cannot get the number of child."))) ; Return nil when key is not found
     ((and (equal (create-node) (cadr node)) (equal (create-node) (cddr node))) 0)
     ((and (not (equal (create-node) (cadr node))) (not (equal (create-node) (cddr node)))) 2)
     (t 1)
