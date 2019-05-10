@@ -1,0 +1,35 @@
+(when (> 3 4)
+  (print 1)
+  (print 2))
+
+(defmacro my-when (condi &rest body)
+  `(if ,condi (progn ,@body)))
+
+
+(defmacro my-if (condi true-sts false-sts)
+  (list 'if condi (cons 'progn true-sts)
+	(cons 'progn false-sts)))
+
+(defmacro myy-if (condi true-sts false-sts)
+  `(if ,condi (progn ,@true-sts)
+     (progn ,@false-sts)))
+
+(let ((x 1)(y 2))
+  (my-if (> x y)
+	 ((princ "x big: ") (princ x))
+	 ((princ "y big: ") (princ y)))
+  (princ "\n\n")
+  (my-if (< x y)
+	 ((princ "x small: ") (princ x))
+	 ((princ "y small: ") (princ y)))
+  (princ "\n\n")
+  (myy-if (> x y)
+	 ((princ "x big: ") (princ x))
+	 ((princ "y big: ") (princ y)))
+  (princ "\n\n")
+  (myy-if (< x y)
+	 ((princ "x small: ") (princ x))
+	 ((princ "y small: ") (princ y)))
+  (princ "\n\n")
+  t
+  )
