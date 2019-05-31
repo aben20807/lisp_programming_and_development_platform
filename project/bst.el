@@ -5,6 +5,30 @@
   "A node contains three cons to store 4 value: ((key . value) left . right)"
   (cons (cons "nil" "nil") (cons "nil" "nil")))
 
+(defun get-key-of-root (node)
+  (caar node))
+
+(defun set-key-of-root (node key)
+  (setcar (car node) key))
+
+(defun get-val-of-root (node)
+  (cdar node))
+
+(defun set-val-of-root (node val)
+  (setcdr (car node) val))
+
+(defun get-l-subtree (node)
+  (cadr node))
+
+(defun set-l-subtree (node lnode)
+  (setcar (cdr node) lnode))
+
+(defun get-r-subtree (node)
+  (cddr node))
+
+(defun set-r-subtree (node rnode)
+  (setcdr (cdr node) rnode))
+
 (defun search-key (tree key)
   (cond
     ((equal "nil" (caar tree)) tree) ; Return current root if not found
@@ -105,43 +129,19 @@
        )))
     ))
 
-(defun get-key-of-node (node)
-  (caar node))
-
-(defun set-key-of-node (node key)
-  (setcar (car node) key))
-
-(defun get-val-of-node (node)
-  (cdar node))
-
-(defun set-val-of-node (node val)
-  (setcdr (car node) val))
-
-(defun get-l-node (node)
-  (cadr node))
-
-(defun set-l-node (node lnode)
-  (setcar (cdr node) lnode))
-
-(defun get-r-node (node)
-  (cddr node))
-
-(defun set-r-node (node rnode)
-  (setcdr (cdr node) rnode))
-
 
 (defun tree-to-vine (tree)
   (let ((tail tree)
-        (rsst (get-r-node tree)))
+        (rsst (get-r-subtree tree)))
     (cond
-      ((equal "nil" (get-key-of-node rsst)) ())
-      ((equal "nil" (get-key-of-node (get-l-node rsst)))
+      ((equal "nil" (get-key-of-root rsst)) ())
+      ((equal "nil" (get-key-of-root (get-l-subtree rsst)))
        (tree-to-vine rsst))
       (t
-       (let ((tamp (get-l-node rsst)))
-         (set-l-node rsst (get-r-node tamp))
-         (set-r-node tamp rsst)
-         (set-r-node tail tamp)
+       (let ((tamp (get-l-subtree rsst)))
+         (set-l-subtree rsst (get-r-subtree tamp))
+         (set-r-subtree tamp rsst)
+         (set-r-subtree tail tamp)
          (tree-to-vine tail)
        ))
     )))
@@ -175,11 +175,14 @@
   ; (insert R 4 "OuO")
   ; (insert R 0 "OuO")
   (print-btree R)
+
   (princ "---\n")
   ; (print (num-of-child (search-key R 4)))
   ; (print (get-val R 4))
   ; (delete-node R 4)
-  (setq R (balance R))
+  ; (print-btree R)
+
   (princ "---\n")
+  (setq R (balance R))
   (print-btree R)
   )
