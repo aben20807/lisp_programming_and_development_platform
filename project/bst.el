@@ -105,17 +105,81 @@
        )))
     ))
 
+(defun get-key-of-node (node)
+  (caar node))
+
+(defun set-key-of-node (node key)
+  (setcar (car node) key))
+
+(defun get-val-of-node (node)
+  (cdar node))
+
+(defun set-val-of-node (node val)
+  (setcdr (car node) val))
+
+(defun get-l-node (node)
+  (cadr node))
+
+(defun set-l-node (node lnode)
+  (setcar (cdr node) lnode))
+
+(defun get-r-node (node)
+  (cddr node))
+
+(defun set-r-node (node rnode)
+  (setcdr (cdr node) rnode))
+
+
+(defun tree-to-vine (tree)
+  (let ((tail tree)
+        (rsst (get-r-node tree)))
+    (cond
+      ((equal "nil" (get-key-of-node rsst)) ())
+      ((equal "nil" (get-key-of-node (get-l-node rsst)))
+       (tree-to-vine rsst))
+      (t
+       (let ((tamp (get-l-node rsst)))
+         (set-l-node rsst (get-r-node tamp))
+         (set-r-node tamp rsst)
+         (set-r-node tail tamp)
+         (tree-to-vine tail)
+       ))
+    )))
+
+(defun balance (tree)
+  (let ((pse (init)))
+    ; pseudo-root
+    (insert pse -1 "pseudo-root")
+    (setcdr (cdr pse) tree)
+    (print-btree pse)
+    (princ "---\n")
+    (tree-to-vine pse)
+    (print-btree pse)
+    (delete-node pse -1)
+    pse
+    ))
+
 (defun print-btree (tree)
   (print-btree-helper tree 0 "→") t)
 
 
 (setq debug-on-error t)
 (setq R nil)
-(let ((R (init)))
+(let ((R (init))
+      (pse (init)))
   (dotimes (i 20)
     (insert R (random 10) "OuO"))
+  ; (insert R 2 "OuO")
+  ; (insert R 3 "OuO")
+  ; (insert R 1 "OuO")
+  ; (insert R 4 "OuO")
+  ; (insert R 0 "OuO")
   (print-btree R)
-  (print (num-of-child (search-key R 4)))
-  (delete-node R 4)
+  (princ "---\n")
+  ; (print (num-of-child (search-key R 4)))
+  ; (print (get-val R 4))
+  ; (delete-node R 4)
+  (setq R (balance R))
+  (princ "---\n")
   (print-btree R)
   )
