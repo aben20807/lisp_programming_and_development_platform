@@ -31,86 +31,96 @@
 
 (defun search-key (tree key)
   (cond
-    ((equal "nil" (caar tree)) tree) ; Return current root if not found
-    ((= key (caar tree)) tree)
-    ((< key (caar tree))(search-key (cadr tree) key))
-    ((> key (caar tree))(search-key (cddr tree) key))
+    ((equal "nil" (get-key-of-root tree)) tree) ; Return current root if not found
+    ((= key (get-key-of-root tree)) tree)
+    ((< key (get-key-of-root tree))(search-key (get-l-subtree tree) key))
+    ((> key (get-key-of-root tree))(search-key (get-r-subtree tree) key))
     ))
 
 (defun insert (tree key val)
   (let ((target (search-key tree key)))
-    (if (equal "nil" (caar target)) ; If target have not initialized the key
+    (if (equal "nil" (get-key-of-root target)) ; If target have not initialized the key
       (progn
-        (setcar target (cons key (cons val nil)))           ; Init a val into a list
-        (setcdr target (cons (create-node) (create-node)))  ; Create left and right node
+        (set-key-of-root target key)
+        (set-val-of-root target (cons val nil))
+        (set-l-subtree target (create-node))
+        (set-r-subtree target (create-node))
         ;        [car|cdr]
         ; [caar|cdar] [cadr|cddr]
         ; (key) (val)   |    |
         ;               v    v
         ;            [node][node]
         )
-      (setcdr (car target) (cons val (cdar target))) ; Add (preppand) value into a list
+      (set-val-of-root target (cons val (get-val-of-root target))) ; Add (preppand) value into a list
       )
     ))
 
-(defun get-val (tree key)
+(defun get-val-by-key (tree key)
   (let ((ret (search-key tree key)))
-    (if (equal "nil" (caar ret))
+    (if (equal "nil" (get-key-of-root ret))
       (prog1 nil (print "not found!")) ; Return nil when key is not found
-      (cdar ret))
+      (get-val-of-root ret))
     ))
 
 (defun str-length-of-val (tree key)
   "Return the length of all strings in val."
-  (apply #'+ (mapcar #'length (get-val tree key)))
+  (apply #'+ (mapcar #'length (get-val-by-key tree key)))
   )
 
 (defun length-of-root (tree)
   "Return the length of the root node"
   (+ 6
-     (length (number-to-string (caar tree)))
-     (str-length-of-val tree (caar tree))
-     (- (length (get-val tree (caar tree))) 1)
+     (length (number-to-string (get-key-of-root tree)))
+     (str-length-of-val tree (get-key-of-root tree))
+     (- (length (get-val-by-key tree (get-key-of-root tree))) 1)
      ))
 
 (defun print-btree-helper (tree indent prefix)
-  (if (or (equal "nil" tree) (equal "nil" (caar tree)))
+  (if (or (equal "nil" tree) (equal "nil" (get-key-of-root tree)))
     ()
-    (print-btree-helper (cddr tree) (+ indent (length-of-root tree)) "↗")
+    (print-btree-helper (get-r-subtree tree) (+ indent (length-of-root tree)) "↗")
     (princ (make-string indent ?\ )) ; Create the indent spaces
     (princ prefix)
     (princ "[")
-    (princ (caar tree))
+    (princ (get-key-of-root tree))
     (princ "|")
-    (princ (cdar tree))
+    (princ (get-val-of-root tree))
     (princ "]\n")
-    (print-btree-helper (cadr tree) (+ indent (length-of-root tree)) "↘")
+    (print-btree-helper (get-l-subtree tree) (+ indent (length-of-root tree)) "↘")
     ))
 
 (defun num-of-child (node)
   "Return the number of child of node by checking if the child node is same as empty node."
   (cond
-    ((equal "nil" (caar node))
+    ((equal "nil" (get-key-of-root node))
       (prog1 nil (print "not found! cannot get the number of child."))) ; Return nil when key is not found
-    ((and (equal (create-node) (cadr node)) (equal (create-node) (cddr node))) 0)
-    ((and (not (equal (create-node) (cadr node))) (not (equal (create-node) (cddr node)))) 2)
+    ((and (equal (create-node) (get-l-subtree node)) (equal (create-node) (get-r-subtree node))) 0)
+    ((and (not (equal (create-node) (get-l-subtree node))) (not (equal (create-node) (get-r-subtree node)))) 2)
     (t 1)
     ))
 
 (defun biggest-node (tree)
-  (if (equal "nil" (caar (cddr tree)))
+  (if (equal "nil" (get-key-of-root (get-r-subtree tree)))
     tree
-    (biggest-node (cddr tree))
+    (biggest-node (get-r-subtree tree))
     ))
 
 (defun delete-node (tree key)
   (let ((target (search-key tree key)))
     (cond
-      ((equal "nil" (caar target))
+      ((equal "nil" (get-key-of-root target))
         (prog1 nil (print "not found! cannot delete"))) ; Return nil when key is not found
       ((= 0 (num-of-child target)) ; Directly delete the node
        (setcar target (cons "nil" "nil"))
        (setcdr target (cons "nil" "nil")))
+       ; (setcar (car target) "nil")
+       ; (setcdr (car target) "nil")
+       ; (setcar (cdr target) "nil")
+       ; (setcdr (cdr target) "nil"))
+        ; (set-key-of-root target "nil")
+        ; (set-val-of-root target "nil")
+        ; (set-l-subtree target "nil")
+        ; (set-r-subtree target "nil"))
       ((= 1 (num-of-child target)) ; Let the child to replace target
        (cond
          ((equal "nil" (caar (cadr target))) ; Has node in the right
@@ -129,6 +139,13 @@
        )))
     ))
 
+; (defun size-of-r-tree (tree, size)
+;   (if (equal "nil" (get-key-of-root (get-r-subtree tree)))
+;     size
+;     (size-of-r-tree (get-r-subtree tree) (+ size 1))
+;     )
+;   )
+
 
 (defun tree-to-vine (tree)
   (let ((tail tree)
@@ -146,6 +163,11 @@
        ))
     )))
 
+; (defun vine-to-tree (root, size)
+;   (let ((leaves (- (+ size 1 ) (log (+ size 1) 2)))))
+;   (print leaves)
+;   )
+
 (defun balance (tree)
   (let ((pse (init)))
     ; pseudo-root
@@ -155,6 +177,7 @@
     (princ "---\n")
     (tree-to-vine pse)
     (print-btree pse)
+    ; (vine-to-tree pse (size-of-r-tree pse))
     (delete-node pse -1)
     pse
     ))
@@ -167,22 +190,29 @@
 (setq R nil)
 (let ((R (init))
       (pse (init)))
-  (dotimes (i 20)
-    (insert R (random 10) "OuO"))
+  (insert R 4 "OuO")
+  (print R)
+  (insert R 1 "OuO")
+  (insert R 9 "OuO")
+  (insert R 0 "OuO")
+  (insert R 2 "OuO")
+  (print R)
+  ; (dotimes (i 10)
+  ;   (insert R (random 10) "OuO"))
   ; (insert R 2 "OuO")
   ; (insert R 3 "OuO")
   ; (insert R 1 "OuO")
-  ; (insert R 4 "OuO")
   ; (insert R 0 "OuO")
   (print-btree R)
 
   (princ "---\n")
-  ; (print (num-of-child (search-key R 4)))
-  ; (print (get-val R 4))
-  ; (delete-node R 4)
-  ; (print-btree R)
+  (print (num-of-child (search-key R 4)))
+  (print (get-val-by-key R 4))
+  (delete-node R 4)
+  (print-btree R)
 
   (princ "---\n")
   (setq R (balance R))
   (print-btree R)
+  ; (print (size-of-r-tree R 0))
   )
