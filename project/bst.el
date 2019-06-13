@@ -139,12 +139,12 @@
        )))
     ))
 
-; (defun size-of-r-tree (tree, size)
-;   (if (equal "nil" (get-key-of-root (get-r-subtree tree)))
-;     size
-;     (size-of-r-tree (get-r-subtree tree) (+ size 1))
-;     )
-;   )
+(defun size-of-r-tree (tree size)
+  (if (equal "nil" (get-key-of-root (get-r-subtree tree)))
+    (+ size 1)
+    (size-of-r-tree (get-r-subtree tree) (+ size 1))
+    )
+  )
 
 
 (defun tree-to-vine (tree)
@@ -214,5 +214,5 @@
   (princ "---\n")
   (setq R (balance R))
   (print-btree R)
-  ; (print (size-of-r-tree R 0))
+  (print (size-of-r-tree R 0))
   )
