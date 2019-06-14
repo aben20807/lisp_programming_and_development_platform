@@ -1,3 +1,4 @@
+(require 'cl-lib)
 (defun init ()
   (create-node))
 
@@ -18,7 +19,7 @@
   (setcdr (car node) val))
 
 (defun get-l-subtree (node)
-  (cadr node))
+    (cadr node))
 
 (defun set-l-subtree (node lnode)
   (setcar (cdr node) lnode))
@@ -89,6 +90,9 @@
     (print-btree-helper (get-l-subtree tree) (+ indent (length-of-root tree)) "↘")
     ))
 
+(defun print-btree (tree)
+  (print-btree-helper tree 0 "→") t)
+
 (defun num-of-child (node)
   "Return the number of child of node by checking if the child node is same as empty node."
   (cond
@@ -110,17 +114,11 @@
     (cond
       ((equal "nil" (get-key-of-root target))
         (prog1 nil (print "not found! cannot delete"))) ; Return nil when key is not found
+
       ((= 0 (num-of-child target)) ; Directly delete the node
        (setcar target (cons "nil" "nil"))
        (setcdr target (cons "nil" "nil")))
-       ; (setcar (car target) "nil")
-       ; (setcdr (car target) "nil")
-       ; (setcar (cdr target) "nil")
-       ; (setcdr (cdr target) "nil"))
-        ; (set-key-of-root target "nil")
-        ; (set-val-of-root target "nil")
-        ; (set-l-subtree target "nil")
-        ; (set-r-subtree target "nil"))
+
       ((= 1 (num-of-child target)) ; Let the child to replace target
        (cond
          ((equal "nil" (caar (cadr target))) ; Has node in the right
@@ -132,6 +130,7 @@
          (t (error "never reach"))
          )
        )
+
       ((= 2 (num-of-child target))
        (let ((big-kv (car (biggest-node (cadr target))))) ; Store the key and value
          (delete-node tree (car big-kv)) ; Delete the biggest node smaller than target
@@ -159,60 +158,85 @@
          (set-l-subtree rsst (get-r-subtree tamp))
          (set-r-subtree tamp rsst)
          (set-r-subtree tail tamp)
-         (tree-to-vine tail)
+         (tree-to-vine tail) ; Recursive
        ))
     )))
 
-; (defun vine-to-tree (root, size)
-;   (let ((leaves (- (+ size 1 ) (log (+ size 1) 2)))))
-;   (print leaves)
-;   )
+(defun compress (root cnt)
+  (let ((scanner root))
+    (cl-loop for i from 1 to cnt do
+      (let ((child (get-r-subtree scanner)))
+        (if (equal "nil" child) ()
+          (if (or (equal "nil" (get-r-subtree scanner)) (equal "nil" (get-r-subtree child))) ()
+            (set-r-subtree scanner (get-r-subtree child))) ; else
+          (setq scanner (get-r-subtree scanner))
+          (if (or (equal "nil" (get-r-subtree child)) (equal "nil" (get-l-subtree scanner))) ()
+            (set-r-subtree child (get-l-subtree scanner))) ; else
+          (set-l-subtree scanner child)
+        ))
+      )
+    ))
+
+(defun vine-to-tree (root size)
+  (let ((leaves (- (+ size 1 ) (expt 2 (floor (log (+ size 1) 2)))))) ; Get the number of leaves
+    ; (print leaves)
+    (compress root leaves)
+    (setq size (- size leaves))
+    (while (> size 1)
+            ; (print-btree root) ; debug
+             (compress root (floor (/ size 2)))
+             (setq size (floor (/ size 2)))
+             )
+    ))
 
 (defun balance (tree)
   (let ((pse (init)))
     ; pseudo-root
     (insert pse -1 "pseudo-root")
     (setcdr (cdr pse) tree)
-    (print-btree pse)
-    (princ "---\n")
-    (tree-to-vine pse)
-    (print-btree pse)
-    ; (vine-to-tree pse (size-of-r-tree pse))
-    (delete-node pse -1)
-    pse
-    ))
+    ; (print-btree pse)
 
-(defun print-btree (tree)
-  (print-btree-helper tree 0 "→") t)
+    ; Convert into a sorted list
+    (tree-to-vine pse)
+    ; (print-btree pse)
+
+    ; Compress a balanced tree
+    (vine-to-tree pse (- (size-of-r-tree pse 0) 1))
+
+    ; Remove the pseudo-root
+    (delete-node pse -1)
+    pse ; Return the balanced tree
+    ))
 
 
 (setq debug-on-error t)
 (setq R nil)
 (let ((R (init))
       (pse (init)))
-  (insert R 4 "OuO")
-  (print R)
+  ; (insert R 4 "OuO")
+  ; (print R)
   (insert R 1 "OuO")
-  (insert R 9 "OuO")
-  (insert R 0 "OuO")
   (insert R 2 "OuO")
-  (print R)
-  ; (dotimes (i 10)
-  ;   (insert R (random 10) "OuO"))
+  (insert R 3 "OuO")
+  ; (insert R 9 "OuO")
+  ; (insert R 0 "OuO")
+  ; (print R)
+  (dotimes (i 20)
+    (insert R (random 20) "OuO"))
   ; (insert R 2 "OuO")
   ; (insert R 3 "OuO")
   ; (insert R 1 "OuO")
   ; (insert R 0 "OuO")
   (print-btree R)
 
-  (princ "---\n")
-  (print (num-of-child (search-key R 4)))
-  (print (get-val-by-key R 4))
-  (delete-node R 4)
-  (print-btree R)
+  ; (princ "---\n")
+  ; (print (num-of-child (search-key R 4)))
+  ; (print (get-val-by-key R 4))
+  ; (delete-node R 4)
+  ; (print-btree R)
 
-  (princ "---\n")
+  (princ "\n\n---\n\n\n")
   (setq R (balance R))
   (print-btree R)
-  (print (size-of-r-tree R 0))
+  ; (print (size-of-r-tree R 0))
   )
