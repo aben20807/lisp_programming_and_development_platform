@@ -1,4 +1,6 @@
 (require 'cl-lib)
+(setq debug-on-error t)
+
 (defun init ()
   (create-node))
 
@@ -208,35 +210,31 @@
     pse ; Return the balanced tree
     ))
 
-
-(setq debug-on-error t)
+;; Binary Search Tree initialize
 (setq R nil)
 (let ((R (init))
       (pse (init)))
-  ; (insert R 4 "OuO")
-  ; (print R)
+
+  ;; Test insert
   (insert R 1 "OuO")
   (insert R 2 "OuO")
   (insert R 3 "OuO")
-  ; (insert R 9 "OuO")
-  ; (insert R 0 "OuO")
-  ; (print R)
+  (insert R 4 "OuO")
   (dotimes (i 20)
     (insert R (random 20) "OuO"))
-  ; (insert R 2 "OuO")
-  ; (insert R 3 "OuO")
-  ; (insert R 1 "OuO")
-  ; (insert R 0 "OuO")
+  (princ "Original:\n")
   (print-btree R)
 
+  ;; Test Delete
   ; (princ "---\n")
   ; (print (num-of-child (search-key R 4)))
   ; (print (get-val-by-key R 4))
   ; (delete-node R 4)
   ; (print-btree R)
 
+  ;; Test balance
   (princ "\n\n---\n\n\n")
+  (princ "Balanced:\n")
   (setq R (balance R))
   (print-btree R)
-  ; (print (size-of-r-tree R 0))
   )
